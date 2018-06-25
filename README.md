@@ -1,24 +1,7 @@
-# README
+# My Album
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Brincando com o Active Storage
 
-Things you may want to cover:
+o ActiveStorage é um recurso da versão 5.2 do Rails para ajudar no upload de arquivos, antigamente usavamos Gens como o "Parperclip" ou "CarrierWave" etc.. 
 
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+*Vamos criar um Album de fotografias, cada album pertencerá a um Usuario, e cada Usuario poderá ter Albuns cheio de fotos, assim  poderemos usar as duas principais funcionalidades do upload e imagem do Active Storage.
