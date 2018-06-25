@@ -1,0 +1,113 @@
+-Brincando com o Active Storage
+-A grande aposta do Rails 5.2
+
+- o ActiveStorage é um recurso da versão 5.2 do Rails para ajudar no upload de arquivos, Antigamente usavamos Gens como o "Parperclip" ou "CarrierWave" etc..
+
+O ActiveStorage, vai criar duas tabelas:
+"active_storage_attachments (referencia das imagem para as nosas tabelas)" e "active_storage_blobs (configuração das imagens)"
+
+(http://edgeguides.rubyonrails.org/active_storage_overview.html)
+
+- Vamos criar um Album de fotografias, cada album pertencerá a um Usuario, e cada Usuario poderá ter Albuns cheio de fotos, assim  poderemos usar as duas principais funcionalidades do upload e imagem do Rails 5.2.
+(só uma exemplo do seu funcionamento)
+
+
+-Criando nossa aplicação
+
+rails new myalbum -d postgresql
+
+-Entrando na pasta do projeto
+
+- Vamos Gerar um scaffold User(Para agilizar o processo) 
+
+- Nosso usuario terá um nome e uma Foto de perfil
+
+- (Não vamos criar o campo de foto agora, vamos deixar o Rails fazer a "magica" mais para frente ... )
+rails generate scaffold user name:string
+
+rails db:create db:migrate
+
+- Vamos Subir a aplicação
+
+Ao clicar em novo usuario só teremos o botão de nome, está faltando a foto do perfil, que tal começarmos a brincar com o Active Storage
+
+- http://localhost/users
+
+Para criar as tabelas necessarias do Active Storage vamos rodar o seguinte comando:
+
+rails active_storage:install
+rails db:migrate 
+
+- Caso acessarmos o db/schema.rb, notaremos que existem 2 novas tabelas, "active_storage_attachments" e "active_storage_blobs"
+
+
+- Agora vamos em app/model/user.rb
+(Estamos dizendo para o Active Storage que na nossa Model User terá um "Avatar", poderia da ro nome que eu quiser)
+has_one_attached :avatar
+
+
+- Agora vamoa acrescentar esse novo campo em nossa View para o usuario poder fazer o Upload do seu Avatar
+app/views/users/_form.html.erb
+
+<div class="field">
+  <%= form.label :image %>
+  <%= form.file_field :image %>
+</div>
+
+- Agora precisamos adicionar o campo Avatar na nossa controller para ele permitir esse parametro do campo inserido na View.
+app/controllers/users_controller.rb
+
+params.require(:user).permit(:name, :avatar)
+
+- Pronto com isso ja podemos inserir um avatar para nosso Usuario.
+
+- Agora precisamos exibir no show, nosso usuario criado junto com seu avatar
+app/views/users/show.html.erb
+<p>
+  <strong>Avatar:</strong>
+  <%= image_tag @user.avatar %>
+</p>
+
+
+- Agora vamos criar um Album para nosso Usuario:
+(Nosso album terá um titulo e as imagens, lembrando que precisamos vincular ele ao usuario e não precisamos cria ro campo de imagem agora..)
+ -Gerando um Scafold para agilizar o processo
+
+rails generate scaffold album title user:references
+
+rails db:migrate
+
+
+- Vamos abrir a model Album, e diferente do usuario nosso album terá varias imagens, então invez de "has_one_attached" usaremos "has_many_attached"
+(vamos da ro nome do campo de images)
+app/models/album.rb
+
+has_many_attached :images
+
+-E inferir as mesmas modificações que colocamos no User,
+- Inserir o campo na View 
+(agora nosso campos de ulpload terá "multiple: true", porque vamos poder inserir varias imagens de uma vez)
+app/views/albums/_form.html.erb
+
+  <div class="field">
+    <%= form.label :images %>
+    <%= form.file_field :images, multiple: true %>
+  </div>
+
+- Na controller (vamos inseir "images: []", pois al invez de uma imagem agora teremos um array de imagens)
+app/controllers/albums_controller.rb
+
+params.require(:album).permit(:title, :user_id,  images: [])
+app/views/albums/show.html.erb
+- No Show
+
+<p>
+  <strong>Images:</strong>
+  <% @album.images.each do |image| %>
+    <%= image_tag image %>
+  <% end %>
+</p>
+
+
+
+

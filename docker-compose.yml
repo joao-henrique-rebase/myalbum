@@ -1,0 +1,23 @@
+version: '2'
+services:
+  db:
+    image: postgres:10.3-alpine
+    ports:
+      - 0:5432
+    env_file:
+      .env.docker
+    volumes:
+      - myalbum_db:/var/lib/postgresql/data
+  web:
+    volumes:
+      - .:/myalbum
+    build: .
+    ports:
+      - 80:3000
+    command: rails s -b 0.0.0.0
+    env_file:
+      .env.docker
+    links:
+      - db
+volumes:
+  myalbum_db:
